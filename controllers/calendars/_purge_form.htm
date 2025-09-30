@@ -1,0 +1,40 @@
+<?= Form::open() ?>
+    <div class="modal-header">
+        <h4 class="modal-title">Purge Old Calendar Entries</h4>
+        <button type="button" class="close" data-dismiss="popup">&times;</button>
+    </div>
+
+    <div class="modal-body">
+        <p>This will permanently delete all entries from this calendar with an event date before the selected date.</p>
+        <div class="form-group">
+            <label for="purgeDate">Purge entries before this date</label>
+            <input
+                type="text"
+                id="purgeDate"
+                name="purge_date"
+                class="form-control"
+                data-control="datepicker"
+                data-mode="date"
+                data-ignore-timezone="true"
+                value="<?= e($defaultPurgeDate) ?>" />
+        </div>
+        <input type="hidden" name="calendar_id" value="<?= e($calendarId) ?>" />
+    </div>
+
+<div class="modal-footer">
+    <button
+        type="button"
+        class="btn btn-default"
+        data-dismiss="popup">
+        Cancel
+    </button>
+    <button
+        type="submit"
+        class="btn btn-danger wn-icon-trash"
+        data-request="onPurgeEntries"
+        data-load-indicator="Purging..."
+        data-request-confirm="Are you sure you want to purge old entries? This cannot be undone.">
+        Purge Entries
+    </button>
+</div>
+<?= Form::close() ?>

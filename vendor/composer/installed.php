@@ -1,0 +1,41 @@
+<?php return array(
+    'root' => array(
+        'name' => 'mercator/calendar',
+        'pretty_version' => '1.0.0+no-version-set',
+        'version' => '1.0.0.0',
+        'reference' => null,
+        'type' => 'winter-plugin',
+        'install_path' => __DIR__ . '/../../',
+        'aliases' => array(),
+        'dev' => true,
+    ),
+    'versions' => array(
+        'mercator/calendar' => array(
+            'pretty_version' => '1.0.0+no-version-set',
+            'version' => '1.0.0.0',
+            'reference' => null,
+            'type' => 'winter-plugin',
+            'install_path' => __DIR__ . '/../../',
+            'aliases' => array(),
+            'dev_requirement' => false,
+        ),
+        'spatie/enum' => array(
+            'pretty_version' => '3.13.0',
+            'version' => '3.13.0.0',
+            'reference' => 'f1a0f464ba909491a53e60a955ce84ad7cd93a2c',
+            'type' => 'library',
+            'install_path' => __DIR__ . '/../spatie/enum',
+            'aliases' => array(),
+            'dev_requirement' => false,
+        ),
+        'spatie/icalendar-generator' => array(
+            'pretty_version' => '2.9.2',
+            'version' => '2.9.2.0',
+            'reference' => '6fa4d5b20490afeebe711f6cad1733853c667aa2',
+            'type' => 'library',
+            'install_path' => __DIR__ . '/../spatie/icalendar-generator',
+            'aliases' => array(),
+            'dev_requirement' => false,
+        ),
+    ),
+);

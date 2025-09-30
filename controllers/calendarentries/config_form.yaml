@@ -1,0 +1,10 @@
+name: mercator.calendar::lang.entry.label
+form: $/mercator/calendar/models/calendarentry/fields.yaml
+modelClass: Mercator\Calendar\Models\CalendarEntry
+defaultRedirect: mercator/calendar/calendarentries
+create:
+    redirect: 'mercator/calendar/calendarentries/update/:id'
+    redirectClose: mercator/calendar/calendarentries
+update:
+    redirect: mercator/calendar/calendarentries
+    redirectClose: mercator/calendar/calendarentries

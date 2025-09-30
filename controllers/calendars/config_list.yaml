@@ -1,0 +1,12 @@
+title: mercator.calendar::lang.navigation.calendars
+modelClass: Mercator\Calendar\Models\Calendar
+list: $/mercator/calendar/models/calendar/columns.yaml
+recordUrl: 'mercator/calendar/calendars/update/:id'
+noRecordsMessage: 'backend::lang.list.no_records'
+recordsPerPage: 20
+showSetup: true
+showCheckboxes: true
+toolbar:
+    buttons: list_toolbar
+    search:
+        prompt: 'backend::lang.list.search_prompt'

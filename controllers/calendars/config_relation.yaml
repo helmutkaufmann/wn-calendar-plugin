@@ -1,0 +1,11 @@
+# ===================================
+#  Relation Behavior Config
+# ===================================
+
+entries:
+    label: Entry
+    view:
+        list: $/mercator/calendar/models/calendarentry/columns.yaml
+        toolbarButtons: false
+    manage:
+        form: $/mercator/calendar/models/calendarentry/fields.yaml

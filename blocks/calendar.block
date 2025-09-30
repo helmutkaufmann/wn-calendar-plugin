@@ -1,0 +1,7 @@
+name: AAAA
+description: Displays events from a selected calendar.
+icon: icon-calendar-o
+tags: ["pages"]
+
+==
+BLOCK TEST

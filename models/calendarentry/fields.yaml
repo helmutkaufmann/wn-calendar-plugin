@@ -1,0 +1,72 @@
+# ===================================
+#  Form Field Definitions
+# ===================================
+
+fields:
+    title:
+        label: mercator.calendar::lang.entry.title
+        span: full
+    summary:
+        label: Summary
+        comment: A short summary of the event, used in feeds.
+        type: textarea
+        size: tiny
+        span: full
+    calendar:
+        label: mercator.calendar::lang.entry.calendar
+        type: relation
+        nameFrom: name
+    description:
+        label: mercator.calendar::lang.entry.description
+        type: richeditor
+        size: huge
+        span: full
+
+tabs:
+    fields:
+        start_datetime:
+            label: Start Date & Time
+            type: datepicker
+            mode: datetime
+            span: auto
+            ignoreTimezone: true
+            required: true
+
+        end_datetime:
+            label: End Date & Time (Optional)
+            type: datepicker
+            mode: datetime
+            span: auto
+            ignoreTimezone: true
+
+        timezone:
+            label: Timezone
+            type: dropdown
+            span: auto
+            default: 'UTC'
+
+        location:
+            label: mercator.calendar::lang.entry.location
+            span: left
+
+        published_from:
+            label: mercator.calendar::lang.entry.published_from
+            type: datepicker
+            mode: datetime
+            span: auto
+            tab: mercator.calendar::lang.entry.tab_publish
+
+        published_to:
+            label: mercator.calendar::lang.entry.published_to
+            type: datepicker
+            mode: datetime
+            span: auto
+            tab: mercator.calendar::lang.entry.tab_publish
+
+secondaryTabs:
+    fields:
+        featured_image:
+            label: Featured Image
+            type: fileupload
+            mode: image
+            tab: Media

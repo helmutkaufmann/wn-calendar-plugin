@@ -1,0 +1,15 @@
+columns:
+    id:
+        label: ID
+        type: number
+        sortable: true
+    name:
+        label: mercator.calendar::lang.calendar.name
+        type: text
+        searchable: true
+        sortable: true
+    slug:
+        label: mercator.calendar::lang.calendar.slug
+        type: text
+        searchable: true
+        sortable: true

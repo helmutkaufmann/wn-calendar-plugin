@@ -1,0 +1,29 @@
+<?= '<?xml version="1.0" encoding="UTF-8" ?>' ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+    <channel>
+        <title>{{ calendar.name }}</title>
+        <link>{{ link }}</link>
+        <description>Latest events from the {{ calendar.name }} calendar</description>
+        <atom:link href="{{ link }}" rel="self" type="application/rss+xml" />
+
+        {% for entry in entries %}
+            <item>
+                <title>{{ entry.title }}</title>
+                <link>{{ 'calendar-event'|page({ id: entry.id }) }}</link>
+                <guid>{{ 'calendar-event'|page({ id: entry.id }) }}</guid>
+                <pubDate>{{ entry.event_date.toRssString() }}</pubDate>
+                <description>
+                    <![CDATA[
+                        {% if entry.event_time %}
+                            <p><strong>Time:</strong> {{ entry.event_time|date("g:i A") }}</p>
+                        {% endif %}
+                        {% if entry.location %}
+                            <p><strong>Location:</strong> {{ entry.location }}</p>
+                        {% endif %}
+                        {{ entry.description|raw }}
+                    ]]>
+                </description>
+            </item>
+        {% endfor %}
+    </channel>
+</rss>

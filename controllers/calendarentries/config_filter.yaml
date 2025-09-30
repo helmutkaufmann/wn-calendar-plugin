@@ -1,0 +1,6 @@
+scopes:
+    calendar:
+        label: Calendar
+        modelClass: Mercator\Calendar\Models\Calendar
+        conditions: calendar_id in (:filtered)
+        nameFrom: name
