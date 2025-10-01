@@ -31,14 +31,13 @@ public $implement = [
         $this->vars['defaultPurgeDate'] = Carbon::yesterday()->format('Y-m-d');
         return $this->makePartial('purge_form');
     }
-    
-    public function onPurgeEntries()
+public function onPurgeEntries()
     {
         $calendarId = post('calendar_id');
         $purgeDate = Carbon::parse(post('purge_date'));
 
         $count = CalendarEntry::where('calendar_id', $calendarId)
-            ->where('start_datetime', '<', $purgeDate) // This line is now corrected
+            ->where('event_date', '<', $purgeDate)
             ->delete();
 
         Flash::success("Successfully purged " . $count . " old entries.");
@@ -52,5 +51,4 @@ public $implement = [
 
         // Refresh the 'entries' relation partial on the page
         return $this->relationRefresh('entries');
-    }
-}
+    }}
