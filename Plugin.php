@@ -3,6 +3,7 @@
 use System\Classes\PluginBase;
 use Backend;
 use Event;
+
 class Plugin extends PluginBase
 {
     public function pluginDetails()
@@ -57,12 +58,6 @@ class Plugin extends PluginBase
         ];
     }
 
-    /**
-     * Boot method, called right before the request route.
-     */
-	/**
-     * Boot method, called right before the request route.
-     */
     public function boot()
     {
         Event::listen('backend.menu.extendItems', function ($manager) {
@@ -73,8 +68,6 @@ class Plugin extends PluginBase
             if ($context->owner !== 'Mercator.Calendar' || $context->mainMenuCode !== 'calendar') {
                 return;
             }
-
-            // --- Corrected Logic ---
 
             // 1. Prepare the dynamic items from the database
             $calendars = Calendar::orderBy('name')->get();
@@ -109,7 +102,7 @@ class Plugin extends PluginBase
     public function registerBlocks(): array
     {
         return [
-            'mercal_calendar' => '$/mercator/calendar/blocks/calendar.block',
+            'mercator_calendar_calendar' => '$/mercator/calendar/blocks/calendar.block',
         ];
     }
 }
