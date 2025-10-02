@@ -2,7 +2,7 @@
 
 use Cms\Classes\Controller as CmsController;
 use Mercator\Calendar\Models\Calendar as CalendarModel;
-use Mercator\Calendar\Models\CalendarEntry; 
+use Mercator\Calendar\Models\CalendarEntry;
 use Spatie\IcalendarGenerator\Components\Calendar;
 use Spatie\IcalendarGenerator\Components\Event;
 use Carbon\Carbon;
@@ -10,6 +10,9 @@ use Response;
 
 class Ical extends CmsController
 {
+    /**
+     * Generates an iCal feed for an entire calendar subscription.
+     */
     public function feed($slug)
     {
         $calendarModel = CalendarModel::where('slug', $slug)->first();
@@ -37,8 +40,6 @@ class Ical extends CmsController
                 $description .= strip_tags($entry->description);
             }
 
-            // Create timezone-aware Carbon instances by parsing the raw datetime
-            // string from the DB with the event's specific timezone.
             $startTime = Carbon::parse($entry->start_datetime, $entry->timezone);
             $endTime = $entry->end_datetime
                 ? Carbon::parse($entry->end_datetime, $entry->timezone)
@@ -61,12 +62,13 @@ class Ical extends CmsController
             $icalCalendar->event($event);
         }
 
+        // Return the feed without the 'Content-Disposition' header to allow for subscribing
         return Response::make($icalCalendar->get())
             ->header('Content-Type', 'text/calendar; charset=utf-8');
     }
- 
+
     /**
-     * Generates an iCal feed for a single event.
+     * Generates an iCal file for a single event download.
      */
     public function eventFeed($id)
     {
@@ -76,7 +78,6 @@ class Ical extends CmsController
             return Response::make('Event not found', 404);
         }
 
-        // Create a calendar containing a single event
         $icalCalendar = Calendar::create($entry->title);
 
         $startTime = Carbon::parse($entry->start_datetime, $entry->timezone);
@@ -102,8 +103,9 @@ class Ical extends CmsController
         
         $fileName = preg_replace('/[^A-Za-z0-9_\-]/', '', $entry->title) . '.ics';
 
+        // Set Content-Disposition to 'inline' to suggest opening the file directly
         return Response::make($icalCalendar->get())
             ->header('Content-Type', 'text/calendar; charset=utf-8')
-            ->header('Content-Disposition', 'inline; filename="' . $fileName . '"'); // Changed 'attachment' to 'inline'
+            ->header('Content-Disposition', 'inline; filename="' . $fileName . '"');
     }
 }

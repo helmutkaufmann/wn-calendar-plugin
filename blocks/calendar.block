@@ -17,6 +17,7 @@ fields:
         modelClass: Mercator\Calendar\Models\Calendar
         required: true
         span: left
+
     view:
         label: Display View
         type: dropdown
@@ -26,18 +27,23 @@ fields:
             grid: Grid View
         span: right
 
-    showSubscribeButton:
-        label: Show subscribe button
-        comment: If checked, a "Subscribe" button for the whole calendar will be shown.
-        type: switch
-        default: true
+    buttonAlignment:
+        label: Feed Button Alignment
+        comment: Choose the alignment for the 'Subscribe' button, or hide it.
+        type: dropdown
+        default: 'right'
+        options:
+            'none': Not Shown
+            'left': Left
+            'center': Center
+            'right': Right
         span: left
 
     showEventIcsButton:
-        label: Show 'Add to Calendar' button for each event
-        comment: If checked, each event will have its own download button.
+        label: Show 'Add to Calendar' icon for each event
+        comment: If checked, each event will have its own download icon.
         type: switch
-        default: false
+        default: true
         span: right
     
     listAccordionsOpen:
@@ -95,10 +101,10 @@ function onStart()
 
     $this['calendar'] = $calendar;
     $this['view'] = $view;
-    $this['listAccordionsOpen'] = (bool) $this['listAccordionsOpen'];
+    $this['listAccordionsOpen'] = (bool) ($this['listAccordionsOpen'] ?? false);
     $this['displayLimit'] = (int) ($this['displayLimit'] ?? 0);
-    $this['showSubscribeButton'] = (bool) $this['showSubscribeButton'];
-    $this['showEventIcsButton'] = (bool) $this['showEventIcsButton'];
+    $this['showEventIcsButton'] = (bool) ($this['showEventIcsButton'] ?? true);
+    $this['buttonAlignment'] = $this['buttonAlignment'] ?? 'right';
     $this['icsUrl'] = Url::to('/mercator/calendar/ical/' . $calendar->slug . '.ics');
     $this['webcalUrl'] = str_replace(['http://', 'https://'], 'webcal://', $this['icsUrl']);
 
@@ -199,10 +205,10 @@ function onStart()
 </style>
 
 {% set feedButtons %}
-    {% if showSubscribeButton %}
-        <a href="{{ webcalUrl }}" class="uk-button uk-button-default uk-button-small" title="Subscribe in Calendar App">
-            <span uk-icon="calendar"></span> Subscribe
-        </a>
+    {% if buttonAlignment and buttonAlignment != 'none' %}
+    <a href="{{ webcalUrl }}" class="uk-button uk-button-default uk-button-small" title="Subscribe in Calendar App">
+        <span uk-icon="calendar"></span> Subscribe
+    </a>
     {% endif %}
 {% endset %}
 
@@ -236,14 +242,22 @@ function onStart()
                                                     <a href="#" class="uk-text-small uk-link-reset uk-display-block uk-text-truncate">{{ entry.title }}</a>
                                                     <div uk-dropdown="mode: click; pos: bottom-center; boundary: !.uk-table; animation: uk-animation-fade">
                                                         <div class="uk-card uk-card-body uk-card-default uk-padding-small uk-width-medium">
-                                                            <h5 class="uk-card-title uk-margin-small-bottom">{{ entry.title }}</h5>
-                                                            <p class="uk-margin-small"><span class="uk-margin-small-right" uk-icon="icon: clock; ratio: 0.8"></span>{{ entry.start_datetime|date("g:i A") }}{{ entry.end_datetime ? ' - ' ~ entry.end_datetime|date("g:i A") : '' }}</p>
+                                                            <div class="uk-card-title uk-margin-remove-bottom uk-grid-small" uk-grid>
+                                                                <h5 class="uk-width-expand uk-margin-remove-bottom">{{ entry.title }}</h5>
+                                                            </div>
+                                                            <div class="uk-grid-small uk-flex-middle" uk-grid>
+                                                                {% if showEventIcsButton %}
+                                                                <div class="uk-width-auto">
+                                                                    <a href="{{ url('/mercator/calendar/ical/event/' ~ entry.id ~ '.ics') }}" class="uk-icon-button" uk-icon="calendar" uk-tooltip="Add to Calendar"></a>
+                                                                </div>
+                                                                {% endif %}
+                                                                <div class="uk-width-expand">
+                                                                    <p class="uk-margin-remove"><span class="uk-margin-small-right" uk-icon="icon: clock; ratio: 0.8"></span>{{ entry.start_datetime|date("g:i A") }}{{ entry.end_datetime ? ' - ' ~ entry.end_datetime|date("g:i A") : '' }}</p>
+                                                                </div>
+                                                            </div>
                                                             {% if entry.location %}<p class="uk-margin-small"><span class="uk-margin-small-right" uk-icon="icon: location; ratio: 0.8"></span>{{ entry.location }}</p>{% endif %}
                                                             {% if entry.summary %}<p class="uk-margin-small"><em>{{ entry.summary }}</em></p>{% endif %}
                                                             {% if entry.description %}<div class="uk-margin-small-top editor-content">{{ entry.description|raw }}</div>{% endif %}
-                                                            {% if showEventIcsButton %}
-                                                                <a href="{{ url('/mercator/calendar/ical/event/' ~ entry.id ~ '.ics') }}" class="uk-button uk-button-primary uk-button-small uk-width-1-1 uk-margin-small-top">Add to Calendar</a>
-                                                            {% endif %}
                                                         </div>
                                                     </div>
                                                 </div>
@@ -258,9 +272,11 @@ function onStart()
                 </table>
             {% endfor %}
         </div>
-        <div class="uk-card-footer uk-text-center">
+        {% if buttonAlignment and buttonAlignment != 'none' %}
+        <div class="uk-card-footer uk-text-{{ buttonAlignment }}">
             {{ feedButtons }}
         </div>
+        {% endif %}
     </div>
 {% else %}
     {# --- LIST VIEW (ACCORDION PER EVENT) --- #}
@@ -295,11 +311,17 @@ function onStart()
                                     {% endif %}
                                 </a>
                                 <div class="uk-accordion-content">
-                                    <p class="uk-margin-small"><span class="uk-margin-small-right" uk-icon="icon: clock; ratio: 0.8"></span>{{ entry.start_datetime|date("g:i A") }}{{ entry.end_datetime ? ' - ' ~ entry.end_datetime|date("g:i A") : '' }}</p>
+                                    <div class="uk-grid-small uk-flex-middle" uk-grid>
+                                        <div class="uk-width-expand">
+                                            <p class="uk-margin-remove"><span class="uk-margin-small-right" uk-icon="icon: clock; ratio: 0.8"></span>{{ entry.start_datetime|date("g:i A") }}{{ entry.end_datetime ? ' - ' ~ entry.end_datetime|date("g:i A") : '' }}</p>
+                                        </div>
+                                    </div>
                                     {% if entry.location %}<p class="uk-margin-small"><span class="uk-margin-small-right" uk-icon="icon: location; ratio: 0.8"></span>{{ entry.location }}</p>{% endif %}
                                     {% if entry.description %}<div class="uk-margin-small-top editor-content">{{ entry.description|raw }}</div>{% endif %}
                                     {% if showEventIcsButton %}
-                                        <a href="{{ url('/mercator/calendar/ical/event/' ~ entry.id ~ '.ics') }}" class="uk-button uk-button-primary uk-button-small uk-margin-small-top">Add to Calendar</a>
+                                        <div class="uk-text-right uk-margin-small-top">
+                                            <a href="{{ url('/mercator/calendar/ical/event/' ~ entry.id ~ '.ics') }}" class="uk-icon-button" uk-icon="calendar" uk-tooltip="Add to Calendar"></a>
+                                        </div>
                                     {% endif %}
                                 </div>
                             </div>
@@ -308,8 +330,10 @@ function onStart()
                 </div>
             {% endif %}
         </div>
-        <div class="uk-card-footer uk-text-center">
+        {% if buttonAlignment and buttonAlignment != 'none' %}
+        <div class="uk-card-footer uk-text-{{ buttonAlignment }}">
             {{ feedButtons }}
         </div>
+        {% endif %}
     </div>
 {% endif %}
