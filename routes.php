@@ -10,3 +10,6 @@ Route::get('/mercator/calendar/rss/{slug}', function ($slug) {
 Route::get('/mercator/calendar/ical/{slug}.ics', function ($slug) {
     return (new Ical())->feed($slug);
 });
+Route::get('/mercator/calendar/ical/event/{id}.ics', function ($id) {
+    return (new Ical())->eventFeed($id);
+});

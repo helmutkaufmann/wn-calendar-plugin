@@ -3,6 +3,7 @@ columns:
         label: ID
         type: number
         sortable: true
+        invisible: true
     name:
         label: mercator.calendar::lang.calendar.name
         type: text

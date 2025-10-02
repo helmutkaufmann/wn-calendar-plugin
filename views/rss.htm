@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+    <channel>
+        <title>{{ calendar.name }}</title>
+        <link>{{ link }}</link>
+        <description>Latest events from the {{ calendar.name }} calendar</description>
+        <atom:link href="{{ link }}" rel="self" type="application/rss+xml" />
+
+        {% for entry in entries %}
+            <item>
+                <title>{{ entry.title }}</title>
+                {# 
+                  This assumes you have a CMS page at the URL /event/:id to display a single event.
+                  You should change '/event/' to your actual page URL if it's different.
+                #}
+                <link>{{ url('/event/' ~ entry.id) }}</link>
+                <guid>{{ url('/event/' ~ entry.id) }}</guid>
+		<pubDate>{{ entry.start_datetime.toRssString }}</pubDate>
+                <description>
+                    <![CDATA[
+                        {% if entry.summary %}
+                            <p><strong>{{ entry.summary }}</strong></p>
+                        {% endif %}
+                        <p><strong>Time:</strong> {{ entry.start_datetime|date("g:i A") }}{{ entry.end_datetime ? ' - ' ~ entry.end_datetime|date("g:i A") : '' }}</p>
+                        {% if entry.location %}
+                            <p><strong>Location:</strong> {{ entry.location }}</p>
+                        {% endif %}
+                        {{ entry.description|raw }}
+                    ]]>
+                </description>
+                {% if entry.featured_image %}
+                    <enclosure url="{{ entry.featured_image.path }}" length="{{ entry.featured_image.file_size }}" type="{{ entry.featured_image.content_type }}" />
+                {% endif %}
+            </item>
+        {% endfor %}
+    </channel>
+</rss>

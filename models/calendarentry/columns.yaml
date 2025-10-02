@@ -3,6 +3,7 @@ columns:
         label: mercator.calendar::lang.entry.title
         type: text
         searchable: true
+        sortable: true
     calendar:
         label: mercator.calendar::lang.entry.calendar
         relation: calendar

@@ -2,6 +2,7 @@
 
 use Cms\Classes\Controller as CmsController;
 use Mercator\Calendar\Models\Calendar as CalendarModel;
+use Mercator\Calendar\Models\CalendarEntry; 
 use Spatie\IcalendarGenerator\Components\Calendar;
 use Spatie\IcalendarGenerator\Components\Event;
 use Carbon\Carbon;
@@ -62,5 +63,44 @@ class Ical extends CmsController
 
         return Response::make($icalCalendar->get())
             ->header('Content-Type', 'text/calendar; charset=utf-8');
+    }
+ 
+    public function eventFeed($id)
+    {
+        $entry = CalendarEntry::find($id);
+
+        if (!$entry) {
+            return Response::make('Event not found', 404);
+        }
+
+        // Create a calendar containing a single event
+        $icalCalendar = Calendar::create($entry->title);
+
+        $startTime = Carbon::parse($entry->start_datetime, $entry->timezone);
+        $endTime = $entry->end_datetime
+            ? Carbon::parse($entry->end_datetime, $entry->timezone)
+            : $startTime->copy()->addHour();
+
+        $event = Event::create()
+            ->name($entry->title)
+            ->description($entry->summary ? $entry->summary . "\n\n" . strip_tags($entry->description) : strip_tags($entry->description))
+            ->startsAt($startTime)
+            ->endsAt($endTime);
+
+        if ($entry->location) {
+            $event->address($entry->location);
+        }
+
+        if ($entry->featured_image) {
+            $event->image($entry->featured_image->getPath());
+        }
+
+        $icalCalendar->event($event);
+        
+        $fileName = $entry->slug . '.ics';
+
+        return Response::make($icalCalendar->get())
+            ->header('Content-Type', 'text/calendar; charset=utf-8')
+            ->header('Content-Disposition', 'attachment; filename="' . $fileName . '"');
     }
 }

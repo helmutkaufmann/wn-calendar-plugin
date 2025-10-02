@@ -1,13 +1,13 @@
 <?php namespace Mercator\Calendar\Controllers;
 
-use Cms\Classes\Controller as CmsController;
 use Mercator\Calendar\Models\Calendar;
 use Response;
 use Request;
+use View;
 
-class Rss extends CmsController
+class Rss
 {
-	public function feed($slug)
+    public function feed($slug)
     {
         $calendar = Calendar::where('slug', $slug)->with(['entries' => function ($query) {
             $query->isPublished()->orderBy('start_datetime', 'desc')->limit(20);
@@ -17,10 +17,18 @@ class Rss extends CmsController
             return Response::make('Calendar not found', 404);
         }
 
-        $this->vars['calendar'] = $calendar;
-        $this->vars['entries'] = $calendar->entries;
-        $this->vars['link'] = Request::url();
+        // Prepare variables for the view
+        $vars = [
+            'calendar' => $calendar,
+            'entries'  => $calendar->entries,
+            'link'     => Request::url()
+        ];
 
-        return Response::make($this->renderPartial('@rss.htm'))
+        // Use View::make() with the namespaced view path.
+        // This will render the plugins/mercator/calendar/views/rss.htm file.
+        $view = View::make('mercator.calendar::rss', $vars);
+
+        return Response::make($view)
             ->header('Content-Type', 'application/xml');
-    }}
+    }
+}

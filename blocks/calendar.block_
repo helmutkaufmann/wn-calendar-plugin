@@ -17,6 +17,7 @@ fields:
         modelClass: Mercator\Calendar\Models\Calendar
         required: true
         span: left
+
     view:
         label: Display View
         type: dropdown
@@ -26,22 +27,9 @@ fields:
             grid: Grid View
         span: right
 
-    showSubscribeButton:
-        label: Show subscribe button
-        comment: If checked, a "Subscribe" button for the whole calendar will be shown.
-        type: switch
-        default: true
-        span: left
-
-    showEventIcsButton:
-        label: Show 'Add to Calendar' button for each event
-        comment: If checked, each event will have its own download button.
-        type: switch
-        default: false
-        span: right
-    
     listAccordionsOpen:
         label: Start with all days expanded
+        comment: If checked, all accordion items in the list view will be open by default.
         type: switch
         default: false
         span: left
@@ -67,6 +55,10 @@ fields:
         mode: date
         span: left
         ignoreTimezone: true
+        trigger:
+            action: hide
+            field: displayLimit
+            condition: value
 
     monthsToShow:
         label: Months to Show
@@ -74,6 +66,10 @@ fields:
         type: number
         default: 3
         span: right
+        trigger:
+            action: hide
+            field: displayLimit
+            condition: value
 ==
 <?php
 use Mercator\Calendar\Models\Calendar;
@@ -97,8 +93,7 @@ function onStart()
     $this['view'] = $view;
     $this['listAccordionsOpen'] = (bool) $this['listAccordionsOpen'];
     $this['displayLimit'] = (int) ($this['displayLimit'] ?? 0);
-    $this['showSubscribeButton'] = (bool) $this['showSubscribeButton'];
-    $this['showEventIcsButton'] = (bool) $this['showEventIcsButton'];
+    $this['rssUrl'] = Url::to('/mercator/calendar/rss/' . $calendar->slug);
     $this['icsUrl'] = Url::to('/mercator/calendar/ical/' . $calendar->slug . '.ics');
     $this['webcalUrl'] = str_replace(['http://', 'https://'], 'webcal://', $this['icsUrl']);
 
@@ -110,7 +105,7 @@ function onStart()
         } else {
             $activeLocale = 'en';
         }
-        
+
         $weekdays = [];
         $day = Carbon::now()->startOfWeek(Carbon::MONDAY);
         for ($i = 0; $i < 7; $i++) {
@@ -165,6 +160,7 @@ function onStart()
             ];
         }
         $this['calendarData'] = $calendarData;
+
     } else {
         // List View data logic
         $displayLimit = (int) $this['displayLimit'];
@@ -173,15 +169,16 @@ function onStart()
         $startDate = $startDateConfig ? Carbon::parse($startDateConfig)->startOfDay() : Carbon::now()->startOfDay();
         $endDate = $startDate->copy()->addMonths($monthsToShow)->endOfMonth()->endOfDay();
 
-        $entries = CalendarEntry::where('calendar_id', $calendar->id)
+        $query = CalendarEntry::where('calendar_id', $calendar->id)
             ->isPublished()
             ->betweenDates($startDate, $endDate)
-            ->orderBy('start_datetime', 'asc')
-            ->get();
-            
+            ->orderBy('start_datetime', 'asc');
+
         if ($displayLimit > 0) {
-            $entries = $entries->take($displayLimit);
+            $query->limit($displayLimit);
         }
+
+        $entries = $query->get();
 
         $this['groupedEntries'] = $entries->groupBy(function($entry) {
             return Carbon::parse($entry->start_datetime)->format('Y-m-d');
@@ -199,11 +196,14 @@ function onStart()
 </style>
 
 {% set feedButtons %}
-    {% if showSubscribeButton %}
+    <div class="uk-button-group">
+        <a href="{{ rssUrl }}" class="uk-button uk-button-default uk-button-small" target="_blank" title="RSS Feed">
+            <span uk-icon="rss"></span> RSS
+        </a>
         <a href="{{ webcalUrl }}" class="uk-button uk-button-default uk-button-small" title="Subscribe in Calendar App">
             <span uk-icon="calendar"></span> Subscribe
         </a>
-    {% endif %}
+    </div>
 {% endset %}
 
 {% if view == 'grid' %}
@@ -241,9 +241,6 @@ function onStart()
                                                             {% if entry.location %}<p class="uk-margin-small"><span class="uk-margin-small-right" uk-icon="icon: location; ratio: 0.8"></span>{{ entry.location }}</p>{% endif %}
                                                             {% if entry.summary %}<p class="uk-margin-small"><em>{{ entry.summary }}</em></p>{% endif %}
                                                             {% if entry.description %}<div class="uk-margin-small-top editor-content">{{ entry.description|raw }}</div>{% endif %}
-                                                            {% if showEventIcsButton %}
-                                                                <a href="{{ url('/mercator/calendar/ical/event/' ~ entry.id ~ '.ics') }}" class="uk-button uk-button-primary uk-button-small uk-width-1-1 uk-margin-small-top">Add to Calendar</a>
-                                                            {% endif %}
                                                         </div>
                                                     </div>
                                                 </div>
@@ -298,9 +295,6 @@ function onStart()
                                     <p class="uk-margin-small"><span class="uk-margin-small-right" uk-icon="icon: clock; ratio: 0.8"></span>{{ entry.start_datetime|date("g:i A") }}{{ entry.end_datetime ? ' - ' ~ entry.end_datetime|date("g:i A") : '' }}</p>
                                     {% if entry.location %}<p class="uk-margin-small"><span class="uk-margin-small-right" uk-icon="icon: location; ratio: 0.8"></span>{{ entry.location }}</p>{% endif %}
                                     {% if entry.description %}<div class="uk-margin-small-top editor-content">{{ entry.description|raw }}</div>{% endif %}
-                                    {% if showEventIcsButton %}
-                                        <a href="{{ url('/mercator/calendar/ical/event/' ~ entry.id ~ '.ics') }}" class="uk-button uk-button-primary uk-button-small uk-margin-small-top">Add to Calendar</a>
-                                    {% endif %}
                                 </div>
                             </div>
                         {% endfor %}
