@@ -65,6 +65,9 @@ class Ical extends CmsController
             ->header('Content-Type', 'text/calendar; charset=utf-8');
     }
  
+    /**
+     * Generates an iCal feed for a single event.
+     */
     public function eventFeed($id)
     {
         $entry = CalendarEntry::find($id);
@@ -97,10 +100,10 @@ class Ical extends CmsController
 
         $icalCalendar->event($event);
         
-        $fileName = $entry->slug . '.ics';
+        $fileName = preg_replace('/[^A-Za-z0-9_\-]/', '', $entry->title) . '.ics';
 
         return Response::make($icalCalendar->get())
             ->header('Content-Type', 'text/calendar; charset=utf-8')
-            ->header('Content-Disposition', 'attachment; filename="' . $fileName . '"');
+            ->header('Content-Disposition', 'inline; filename="' . $fileName . '"'); // Changed 'attachment' to 'inline'
     }
 }
