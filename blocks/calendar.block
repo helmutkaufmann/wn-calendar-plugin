@@ -4,82 +4,84 @@ icon: icon-calendar-o
 tags: ["pages"]
 
 fields:
-    calendar_id:
-        label: Calendar
-        comment: Select the calendar to display events from.
-        type: recordfinder
-        list: $/mercator/calendar/models/calendar/columns.yaml
-        title: Find Calendar
-        prompt: Click the %s button to find a calendar
-        keyFrom: id
-        nameFrom: name
-        useRelation: false
-        modelClass: Mercator\Calendar\Models\Calendar
-        required: true
-        span: left
+  calendar_id:
+    label: Calendar
+    comment: Select the calendar to display events from.
+    type: recordfinder
+    list: $/mercator/calendar/models/calendar/columns.yaml
+    title: Find Calendar
+    prompt: Click the %s button to find a calendar
+    keyFrom: id
+    nameFrom: name
+    useRelation: false
+    modelClass: Mercator\Calendar\Models\Calendar
+    required: true
+    span: left
 
-    view:
-        label: Display View
-        type: dropdown
-        default: list
-        options:
-            list: List View
-            grid: Grid View
-        span: right
+  view:
+    label: Display View
+    comment: Show events as a list or in a calendar.
+    type: dropdown
+    default: list
+    options:
+      list: List View
+      grid: Grid View
+    span: right
 
-    buttonAlignment:
-        label: Feed Button Alignment
-        comment: Choose the alignment for the 'Subscribe' button, or hide it.
-        type: dropdown
-        default: 'right'
-        options:
-            'none': Not Shown
-            'left': Left
-            'center': Center
-            'right': Right
-        span: left
+  showEventIcsButton:
+    label: Show 'Add to Calendar' icon for each event
+    comment: If checked each event will have its own download icon.
+    type: switch
+    default: true
+    span: left
 
-    showEventIcsButton:
-        label: Show 'Add to Calendar' icon for each event
-        comment: If checked, each event will have its own download icon.
-        type: switch
-        default: true
-        span: right
-    
-    listAccordionsOpen:
-        label: Start with all days expanded
-        type: switch
-        default: false
-        span: left
-        trigger:
-            action: show
-            field: view
-            condition: value[list]
+  listAccordionsOpen:
+    label: Show all event details
+    comment: If checked, detail for all events will be shown.
+    type: switch
+    default: false
+    span: right # Adjusted span to pair with showEventIcsButton
+    trigger:
+      action: show
+      field: view
+      condition: value[list]
 
-    displayLimit:
-        label: Limit displayed events
-        comment: If specified, only this many events will be shown from the date range.
-        type: number
-        span: full
-        trigger:
-            action: show
-            field: view
-            condition: value[list]
+  buttonAlignment:
+    label: Feed Button Alignment
+    comment: Choose the alignment for the 'Subscribe' button, or hide it.
+    type: dropdown
+    default: 'right'
+    options:
+      'none': Not Shown
+      'left': Left
+      'center': Center
+      'right': Right
+    span: left
 
-    startDate:
-        label: Start Date
-        comment: The date to start displaying events from. Leave blank for the current day/month.
-        type: datepicker
-        mode: date
-        span: left
-        ignoreTimezone: true
+  displayLimit:
+    label: Limit displayed events
+    comment: If specified, only this many events will be shown from the date range.
+    type: number
+    span: right # Adjusted span to pair with buttonAlignment
+    trigger:
+      action: show
+      field: view
+      condition: value[list]
 
-    monthsToShow:
-        label: Months to Show
-        comment: The number of months of events to display from the start date.
-        type: number
-        default: 3
-        span: right
+  startDate:
+    label: Start Date
+    comment: The date to start displaying events from. Leave blank for the current day/month.
+    type: datepicker
+    mode: date
+    span: left
+    ignoreTimezone: true
+
+  monthsToShow:
+    label: Months to Show
+    comment: The number of months of events to display from the start date.
+    type: number
+    default: 3
+    span: right
 ==
 <?php
 use Mercator\Calendar\Models\Calendar;
@@ -106,10 +108,12 @@ function onStart()
     $this['showEventIcsButton'] = (bool) ($this['showEventIcsButton'] ?? true);
     $this['buttonAlignment'] = $this['buttonAlignment'] ?? 'right';
     $this['icsUrl'] = Url::to('/mercator/calendar/ical/' . $calendar->slug . '.ics');
-    $this['webcalUrl'] = str_replace(['http://', 'https://'], 'webcal://', $this['icsUrl']);
+    // PHP 8.2 and up allows str_replace on non-string (null) values, but defensive for consistency
+    $this['webcalUrl'] = str_replace(['http://', 'https://'], 'webcal://', (string) $this['icsUrl']);
 
     // --- Prepare Data based on selected View ---
     if ($view === 'grid') {
+        // Prepare Weekday Headers for Grid View
         if (class_exists(Translator::class)) {
             $translator = Translator::instance();
             $activeLocale = $translator->getLocale();
@@ -118,6 +122,7 @@ function onStart()
         }
         
         $weekdays = [];
+        // Start week on Monday, as is common in many locales
         $day = Carbon::now()->startOfWeek(Carbon::MONDAY);
         for ($i = 0; $i < 7; $i++) {
             $weekdays[] = $day->copy()->locale($activeLocale)->isoFormat('ddd');
@@ -125,13 +130,17 @@ function onStart()
         }
         $this['weekdays'] = $weekdays;
 
+        // Prepare Calendar Data
         $startDateConfig = $this['startDate'];
         $monthsToShow = (int) ($this['monthsToShow'] ?: 1);
+        
+        // Start month based on config or current month
         $startOfMonth = $startDateConfig ? Carbon::parse($startDateConfig)->startOfMonth() : Carbon::now()->startOfMonth();
         $calendarData = [];
 
         for ($m = 0; $m < $monthsToShow; $m++) {
             $currentMonth = $startOfMonth->copy()->addMonthsNoOverflow($m);
+            // Calculate display range to show a full week (Mon-Sun) that contains the month
             $monthStart = $currentMonth->copy()->startOfWeek(Carbon::MONDAY);
             $monthEnd = $currentMonth->copy()->endOfMonth()->endOfWeek(Carbon::SUNDAY);
 
@@ -157,14 +166,18 @@ function onStart()
                     'entries' => $entriesByDate->get($dateKey) ?: []
                 ];
                 $week[] = $dayData;
+                
+                // End of week (Sunday)
                 if ($date->isSunday()) {
                     $weeks[] = $week;
                     $week = [];
                 }
             }
+            // Add any remaining days if the period didn't end on Sunday
             if (!empty($week)) {
                  $weeks[] = $week;
             }
+            
             $calendarData[] = [
                 'monthName' => $currentMonth->locale($activeLocale)->isoFormat('MMMM YYYY'),
                 'weeks' => $weeks
@@ -172,11 +185,13 @@ function onStart()
         }
         $this['calendarData'] = $calendarData;
     } else {
-        // List View data logic
+        // List View data logic (default)
         $displayLimit = (int) $this['displayLimit'];
         $startDateConfig = $this['startDate'];
         $monthsToShow = (int) ($this['monthsToShow'] ?: 3);
+        
         $startDate = $startDateConfig ? Carbon::parse($startDateConfig)->startOfDay() : Carbon::now()->startOfDay();
+        // End date is based on the number of months to show, adjusted to end of day
         $endDate = $startDate->copy()->addMonths($monthsToShow)->endOfMonth()->endOfDay();
 
         $entries = CalendarEntry::where('calendar_id', $calendar->id)
@@ -189,6 +204,7 @@ function onStart()
             $entries = $entries->take($displayLimit);
         }
 
+        // Group events by date for the list view header
         $this['groupedEntries'] = $entries->groupBy(function($entry) {
             return Carbon::parse($entry->start_datetime)->format('Y-m-d');
         });
@@ -199,6 +215,7 @@ function onStart()
 ?>
 ==
 <style>
+    /* Hides the event summary when the accordion is open */
     .uk-open .uk-accordion-title .event-summary {
         display: none;
     }
@@ -221,60 +238,62 @@ function onStart()
         <div class="uk-card-body">
             {% for monthData in calendarData %}
                 <h4 class="uk-text-center uk-margin uk-text-capitalize">{{ monthData.monthName }}</h4>
-                <table class="uk-table uk-table-bordered uk-table-responsive" style="table-layout: fixed;">
-                    <thead>
-                        <tr>
-                            {% for day in weekdays %}
-                                <th class="uk-text-center uk-width-1-7 uk-text-capitalize">{{ day }}</th>
-                            {% endfor %}
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for week in monthData.weeks %}
+                <div class="uk-overflow-auto">
+                    <table class="uk-table uk-table-bordered uk-table-responsive" style="table-layout: fixed; min-width: 600px;">
+                        <thead>
                             <tr>
-                                {% for day in week %}
-                                    <td class="{{ day.inMonth ? '' : 'uk-background-muted uk-text-muted' }}" style="height: 120px; vertical-align: top; padding: 4px;">
-                                        <div class="uk-text-right {{ day.isToday ? 'uk-badge' : '' }}">{{ day.date.format('j') }}</div>
-                                        <ul class="uk-list uk-margin-small-top">
-                                        {% for entry in day.entries %}
-                                            <li>
-                                                <div class="uk-inline">
-                                                    <a href="#" class="uk-text-small uk-link-reset uk-display-block uk-text-truncate">{{ entry.title }}</a>
-                                                    <div uk-dropdown="mode: click; pos: bottom-center; boundary: !.uk-table; animation: uk-animation-fade">
-                                                        <div class="uk-card uk-card-body uk-card-default uk-padding-small uk-width-medium">
-                                                            <h5 class="uk-card-title uk-margin-small-bottom">{{ entry.title }}</h5>
-                                                            <div class="uk-grid-small uk-flex-middle" uk-grid>
-                                                                {% if showEventIcsButton %}
-                                                                    <div class="uk-width-auto">
-                                                                        <a href="{{ url('/mercator/calendar/ical/event/' ~ entry.id ~ '.ics') }}" class="uk-icon-button" uk-icon="calendar" uk-tooltip="Add to Calendar"></a>
-                                                                    </div>
-                                                                {% endif %}
-                                                                <div class="uk-width-expand">
-                                                                    <p class="uk-margin-remove">
-                                                                        <span class="uk-margin-small-right" uk-icon="icon: clock; ratio: 0.8"></span>
-                                                                        {% if entry.end_datetime and entry.start_datetime|date('Y-m-d') != entry.end_datetime|date('Y-m-d') %}
-                                                                            {{ entry.start_datetime|date("g:i A (M j)") }} - {{ entry.end_datetime|date("g:i A (M j)") }}
-                                                                        {% else %}
-                                                                            {{ entry.start_datetime|date("g:i A") }}{{ entry.end_datetime ? ' - ' ~ entry.end_datetime|date("g:i A") : '' }}
-                                                                        {% endif %}
-                                                                    </p>
-                                                                </div>
-                                                            </div>
-                                                            {% if entry.location %}<p class="uk-margin-small"><span class="uk-margin-small-right" uk-icon="icon: location; ratio: 0.8"></span>{{ entry.location }}</p>{% endif %}
-                                                            {% if entry.summary %}<p class="uk-margin-small"><em>{{ entry.summary }}</em></p>{% endif %}
-                                                            {% if entry.description %}<div class="uk-margin-small-top editor-content">{{ entry.description|raw }}</div>{% endif %}
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </li>
-                                        {% endfor %}
-                                        </ul>
-                                    </td>
+                                {% for day in weekdays %}
+                                    <th class="uk-text-center uk-width-1-7 uk-text-capitalize">{{ day }}</th>
                                 {% endfor %}
                             </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
+                        </thead>
+                        <tbody>
+                            {% for week in monthData.weeks %}
+                                <tr>
+                                    {% for day in week %}
+                                        <td class="{{ day.inMonth ? '' : 'uk-background-muted uk-text-muted' }}" style="height: 120px; vertical-align: top; padding: 4px;">
+                                            <div class="uk-text-right uk-text-bold {{ day.isToday ? 'uk-label uk-label-primary' : '' }} uk-display-inline-block uk-padding-small uk-padding-remove-vertical">{{ day.date.format('j') }}</div>
+                                            <ul class="uk-list uk-margin-small-top uk-list-small">
+                                            {% for entry in day.entries %}
+                                                <li>
+                                                    <div class="uk-inline">
+                                                        <a href="#" class="uk-text-small uk-link-reset uk-display-block uk-text-truncate" uk-toggle="target: #event-dropdown-{{ entry.id }}-{{ loop.parent.loop.index }}">{{ entry.title }}</a>
+                                                        <div id="event-dropdown-{{ entry.id }}-{{ loop.parent.loop.index }}" uk-dropdown="mode: click; pos: bottom-center; boundary: !.uk-table; animation: uk-animation-fade; duration: 100">
+                                                            <div class="uk-card uk-card-body uk-card-default uk-padding-small uk-width-medium">
+                                                                <h5 class="uk-card-title uk-margin-small-bottom">{{ entry.title }}</h5>
+                                                                <div class="uk-grid-small uk-flex-middle" uk-grid>
+                                                                    {% if showEventIcsButton %}
+                                                                        <div class="uk-width-auto">
+                                                                            <a href="{{ url('/mercator/calendar/ical/event/' ~ entry.id ~ '.ics') }}" class="uk-icon-button" uk-icon="calendar" uk-tooltip="Add to Calendar"></a>
+                                                                        </div>
+                                                                    {% endif %}
+                                                                    <div class="uk-width-expand">
+                                                                        <p class="uk-margin-remove uk-text-small">
+                                                                            <span class="uk-margin-small-right" uk-icon="icon: clock; ratio: 0.8"></span>
+                                                                            {% if entry.end_datetime and entry.start_datetime|date('Y-m-d') != entry.end_datetime|date('Y-m-d') %}
+                                                                                {{ entry.start_datetime|date("g:i A (M j)") }} - {{ entry.end_datetime|date("g:i A (M j)") }}
+                                                                            {% else %}
+                                                                                {{ entry.start_datetime|date("g:i A") }}{{ entry.end_datetime ? ' - ' ~ entry.end_datetime|date("g:i A") : '' }}
+                                                                            {% endif %}
+                                                                        </p>
+                                                                    </div>
+                                                                </div>
+                                                                {% if entry.location %}<p class="uk-margin-small uk-text-small"><span class="uk-margin-small-right" uk-icon="icon: location; ratio: 0.8"></span>{{ entry.location }}</p>{% endif %}
+                                                                {% if entry.summary %}<p class="uk-margin-small uk-text-small uk-text-italic">{{ entry.summary }}</p>{% endif %}
+                                                                {% if entry.description %}<div class="uk-margin-small-top editor-content uk-text-small">{{ entry.description|raw }}</div>{% endif %}
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </li>
+                                            {% endfor %}
+                                            </ul>
+                                        </td>
+                                    {% endfor %}
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
             {% endfor %}
         </div>
         {% if buttonAlignment and buttonAlignment != 'none' %}
@@ -291,7 +310,7 @@ function onStart()
             <p class="uk-text-meta uk-margin-remove-top">
                 Events from {{ startDate.format('F d, Y') }} to {{ endDate.format('F d, Y') }}
                 {% if displayLimit > 0 %}
-                    (Showing first {{ displayLimit }} event(s))
+                    (Showing first **{{ displayLimit }}** event(s))
                 {% endif %}
             </p>
         </div>
@@ -306,7 +325,7 @@ function onStart()
                         {% for entry in entries %}
                             <div class="{{ listAccordionsOpen ? 'uk-open' : '' }}">
                                 <a class="uk-accordion-title" href="#">
-                                    <h5 class="uk-margin-remove-bottom">
+                                    <h5 class="uk-margin-remove-bottom uk-text-bold">
                                         {% if entry.end_datetime and entry.start_datetime|date('Y-m-d') != entry.end_datetime|date('Y-m-d') %}
                                             {{ entry.start_datetime|date("F jS") }} - {{ entry.end_datetime|date("F jS, Y") }}
                                         {% else %}
@@ -323,7 +342,7 @@ function onStart()
                                 <div class="uk-accordion-content">
                                     <div class="uk-grid-small uk-flex-middle" uk-grid>
                                         <div class="uk-width-expand">
-                                            <p class="uk-margin-remove">
+                                            <p class="uk-margin-remove uk-text-small">
                                                 <span class="uk-margin-small-right" uk-icon="icon: clock; ratio: 0.8"></span>
                                                 {% if entry.end_datetime and entry.start_datetime|date('Y-m-d') != entry.end_datetime|date('Y-m-d') %}
                                                     {{ entry.start_datetime|date("g:i A (M j)") }} - {{ entry.end_datetime|date("g:i A (M j)") }}
@@ -338,8 +357,8 @@ function onStart()
                                         </div>
                                         {% endif %}
                                     </div>
-                                    {% if entry.location %}<p class="uk-margin-small"><span class="uk-margin-small-right" uk-icon="icon: location; ratio: 0.8"></span>{{ entry.location }}</p>{% endif %}
-                                    {% if entry.description %}<div class="uk-margin-small-top editor-content">{{ entry.description|raw }}</div>{% endif %}
+                                    {% if entry.location %}<p class="uk-margin-small uk-text-small"><span class="uk-margin-small-right" uk-icon="icon: location; ratio: 0.8"></span>{{ entry.location }}</p>{% endif %}
+                                    {% if entry.description %}<div class="uk-margin-small-top editor-content uk-text-small">{{ entry.description|raw }}</div>{% endif %}
                                 </div>
                             </div>
                         {% endfor %}
