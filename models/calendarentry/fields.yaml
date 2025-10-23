@@ -30,6 +30,7 @@ tabs:
             mode: datetime
             span: auto
             ignoreTimezone: true
+            ignoreTime: true 
             required: true
 
         end_datetime:

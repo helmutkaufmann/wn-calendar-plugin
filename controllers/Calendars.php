@@ -10,12 +10,12 @@ class Calendars extends Controller
 public $implement = [
         \Backend\Behaviors\ListController::class,
         \Backend\Behaviors\FormController::class,
-        \Backend\Behaviors\RelationController::class // Add this line
+        \Backend\Behaviors\RelationController::class 
     ];
     
     public $listConfig = 'config_list.yaml';
     public $formConfig = 'config_form.yaml';
-    public $relationConfig = 'config_relation.yaml'; // Add this line
+    public $relationConfig = 'config_relation.yaml'; 
     public $requiredPermissions = ['mercator.calendar.access_calendars'];
 
     public function __construct()

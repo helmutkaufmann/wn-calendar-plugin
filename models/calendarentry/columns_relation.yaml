@@ -1,0 +1,17 @@
+columns:
+  start_datetime:
+    label: Date
+    type: date
+    width: 20%
+    sortable: true
+  title:
+    label: Title
+    width: 50%
+    searchable: true
+    sortable: true
+  location:
+    label: Location
+    width: 30%
+    searchable: true
+    sortable: true
+

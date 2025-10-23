@@ -3,106 +3,134 @@
 use System\Classes\PluginBase;
 use Backend;
 use Event;
+use Carbon\Carbon;
+use Session;
+use Log;
+
 
 class Plugin extends PluginBase
 {
     public function pluginDetails()
     {
         return [
-            'name'        => 'mercator.calendar::lang.plugin.name',
-            'description' => 'mercator.calendar::lang.plugin.description',
-            'author'      => 'Helmut Kaufmann',
-            'icon'        => 'icon-calendar-o'
+            "name" => "mercator.calendar::lang.plugin.name",
+            "description" => "mercator.calendar::lang.plugin.description",
+            "author" => "Helmut Kaufmann",
+            "icon" => "icon-calendar-o",
         ];
     }
 
     public function registerNavigation()
     {
         return [
-            'calendar' => [
-                'label'       => 'mercator.calendar::lang.navigation.main',
-                'url'         => Backend::url('mercator/calendar/calendars'),
-                'icon'        => 'icon-calendar-o',
-                'permissions' => ['mercator.calendar.access_calendars'],
-                'order'       => 500,
+            "calendar" => [
+                "label" => "mercator.calendar::lang.navigation.main",
+                "url" => Backend::url("mercator/calendar/calendars"),
+                "icon" => "icon-calendar-o",
+                "permissions" => ["mercator.calendar.access_calendars"],
+                "order" => 500,
 
-                'sideMenu' => [
-                    'calendars' => [
-                        'label'       => 'mercator.calendar::lang.navigation.calendars',
-                        'icon'        => 'icon-calendar',
-                        'url'         => Backend::url('mercator/calendar/calendars'),
-                        'permissions' => ['mercator.calendar.access_calendars'],
+                "sideMenu" => [
+                    "calendars" => [
+                        "label" => "mercator.calendar::lang.navigation.calendars",
+                        "icon" => "icon-calendar",
+                        "url" => Backend::url("mercator/calendar/calendars"),
+                        "permissions" => ["mercator.calendar.access_calendars"],
                     ],
-                    'entries' => [
-                        'label'       => 'mercator.calendar::lang.navigation.entries',
-                        'icon'        => 'icon-calendar-check-o',
-                        'url'         => Backend::url('mercator/calendar/calendarentries'),
-                        'permissions' => ['mercator.calendar.access_entries'],
+                    "entries" => [
+                        "label" => "mercator.calendar::lang.navigation.entries",
+                        "icon" => "icon-calendar-check-o",
+                        "url" => Backend::url("mercator/calendar/calendarentries"),
+                        "permissions" => ["mercator.calendar.access_entries"],
                     ],
-                ]
-            ]
+                ],
+            ],
         ];
     }
 
     public function registerPermissions()
     {
         return [
-            'mercator.calendar.access_calendars' => [
-                'tab'   => 'mercator.calendar::lang.permissions.tab',
-                'label' => 'mercator.calendar::lang.permissions.access_calendars'
+            "mercator.calendar.access_calendars" => [
+                "tab" => "mercator.calendar::lang.permissions.tab",
+                "label" => "mercator.calendar::lang.permissions.access_calendars",
             ],
-            'mercator.calendar.access_entries' => [
-                'tab'   => 'mercator.calendar::lang.permissions.tab',
-                'label' => 'mercator.calendar::lang.permissions.access_entries'
+            "mercator.calendar.access_entries" => [
+                "tab" => "mercator.calendar::lang.permissions.tab",
+                "label" => "mercator.calendar::lang.permissions.access_entries",
             ],
         ];
     }
 
     public function boot()
     {
-        Event::listen('backend.menu.extendItems', function ($manager) {
+        Event::listen("backend.menu.extendItems", function ($manager) {
             // Get the context object
             $context = $manager->getContext();
 
             // Only apply to the main Calendar navigation item
-            if ($context->owner !== 'Mercator.Calendar' || $context->mainMenuCode !== 'calendar') {
+            if ($context->owner !== "Mercator.Calendar" || $context->mainMenuCode !== "calendar") {
                 return;
             }
 
             // 1. Prepare the dynamic items from the database
-            $calendars = Calendar::orderBy('name')->get();
+            $calendars = Calendar::orderBy("name")->get();
             $dynamicItems = [];
             foreach ($calendars as $calendar) {
-                $dynamicItems['calendar-' . $calendar->slug] = [
-                    'label'       => $calendar->name,
-                    'icon'        => 'icon-calendar-check-o',
-                    'url'         => Backend::url('mercator/calendar/calendarentries?Filter[calendar]=' . $calendar->id),
-                    'permissions' => ['mercator.calendar.access_entries'],
+                $dynamicItems["calendar-" . $calendar->slug] = [
+                    "label" => $calendar->name,
+                    "icon" => "icon-calendar-check-o",
+                    "url" => Backend::url("mercator/calendar/calendarentries?Filter[calendar]=" . $calendar->id),
+                    "permissions" => ["mercator.calendar.access_entries"],
                 ];
             }
 
             // 2. Define the static item that will be modified
             $staticItems = [
-                'entries' => [
-                    'label'       => 'All Entries',
-                    'icon'        => 'icon-list',
-                    'url'         => Backend::url('mercator/calendar/calendarentries'),
-                    'permissions' => ['mercator.calendar.access_entries'],
+                "entries" => [
+                    "label" => "All Entries",
+                    "icon" => "icon-list",
+                    "url" => Backend::url("mercator/calendar/calendarentries"),
+                    "permissions" => ["mercator.calendar.access_entries"],
                 ],
             ];
-            
+
             // 3. Merge the static and dynamic items into a single array
             $allItems = array_merge($staticItems, $dynamicItems);
 
             // 4. Add the merged array to the side menu
-            $manager->addSideMenuItems('Mercator.Calendar', 'calendar', $allItems);
+            $manager->addSideMenuItems("Mercator.Calendar", "calendar", $allItems);
         });
     }
-    
+
+    public function registerMarkupTags()
+    {
+        return [
+            "filters" => [
+                "translateDate" => [$this, "translateDate"],
+            ],
+        ];
+    }
+
+    public function translateDate($date, $withYear = false)
+    {
+        
+        if (!$date) {
+            return;
+        }
+        if (gettype($date) === "string") {
+            $date = new Carbon($date);
+        }
+        
+        $locale="en";
+        $format = $withYear ? "LL" : (starts_with($locale, "en") ? "MMMM D" : "D MMMM");
+        return $date->locale($locale)->isoFormat($format);
+    }
+
     public function registerBlocks(): array
     {
         return [
-            'mercator_calendar_calendar' => '$/mercator/calendar/blocks/calendar.block',
+            "mercator_calendar_calendar" => '$/mercator/calendar/blocks/calendar.block',
         ];
     }
 }

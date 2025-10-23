@@ -1,16 +1,19 @@
+# top fields rendered in "outside"
 fields:
-    name:
-        label: mercator.calendar::lang.calendar.name
-        span: auto
-    slug:
-        label: mercator.calendar::lang.calendar.slug
-        span: auto
-        preset:
-            field: name
-            type: slug
-entries:
-    type: relation
-    label: Entries
-    style: preview
-    # You can customize the list columns by creating and referencing a yaml file here
-    # list: $/mercator/calendar/models/calendarentry/columns.yaml
+  name:
+    label: Name
+    span: left
+    required: true
+  slug:
+    label: Slug
+    span: right
+    required: true
+    preset:
+      field: name
+      type: slug
+
+# everything else goes under tabs (even if you have none today)
+tabs:
+  fields:
+    # add other calendar fields here when you have them
+

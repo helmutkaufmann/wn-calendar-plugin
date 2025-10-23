@@ -4,13 +4,15 @@ columns:
         type: number
         sortable: true
         invisible: true
+        searchable: false
     name:
         label: mercator.calendar::lang.calendar.name
         type: text
-        searchable: true
         sortable: true
+        searchable: true
+        width: 70%
     slug:
         label: mercator.calendar::lang.calendar.slug
         type: text
-        searchable: true
         sortable: true
+        searchable: false

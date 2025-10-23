@@ -1,0 +1,5 @@
+calendar:
+  label: Calendar
+  type: relation
+  hidden: true
+

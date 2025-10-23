@@ -1,7 +1,13 @@
 columns:
+    start_datetime:
+        label: Date
+        type: date
+        width: 20%
+        sortable: true
     title:
         label: mercator.calendar::lang.entry.title
         type: text
+        width: 55%
         searchable: true
         sortable: true
     calendar:
@@ -9,8 +15,4 @@ columns:
         relation: calendar
         select: name
         sortable: true
-    start_datetime:
-        label: Starts
-        type: datetime
-        format: 'd M Y H:i'
-        sortable: true
+        

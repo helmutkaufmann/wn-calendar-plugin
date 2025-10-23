@@ -1,11 +1,20 @@
-# ===================================
-#  Relation Behavior Config
-# ===================================
-
 entries:
-    label: Entry
-    view:
-        list: $/mercator/calendar/models/calendarentry/columns.yaml
-        toolbarButtons: false
-    manage:
-        form: $/mercator/calendar/models/calendarentry/fields.yaml
+  label: Entries
+  view:
+    list: $/mercator/calendar/models/calendarentry/columns_relation.yaml
+    toolbarButtons: create|delete
+    showSearch: true
+    showSetup: false
+    showCheckboxes: true
+    showSorting: true
+    # use the relation popup on row click
+    rowLink: manage:update
+    defaultSort:
+      column: start_datetime
+      direction: desc
+  manage:
+    form: $/mercator/calendar/models/calendarentry/fields.yaml
+    title: Entry
+    popupSize: giant
+    deferredBinding: true
+

@@ -1,3 +1,6 @@
 v1.0.1:
     - 'Initialize plugin.'
     - create_calendars_tables.php
+v1.0.2:
+    - 'Indexing of start dates'
+    - add_start_datetime_indexes.php

@@ -1,0 +1,13 @@
+<div data-control="toolbar">
+    <?= $this->relationMakePartial('button_create', ['text' => 'Create']) ?>
+
+    <?php if (isset($relationViewModel) && $relationViewModel): ?>
+        <?= $this->relationMakePartial('button_update', [
+            'relationManageId' => $relationViewModel->getKey(),
+            'text' => 'Update'
+        ]) ?>
+    <?php endif; ?>
+
+    <?= $this->relationMakePartial('button_delete', ['text' => 'Delete']) ?>
+</div>
+

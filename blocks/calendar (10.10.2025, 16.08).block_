@@ -308,7 +308,7 @@ function onStart()
         <div class="uk-card-header">
             <h3 class="uk-card-title uk-margin-remove-bottom">{{ calendar.name }}</h3>
             <p class="uk-text-meta uk-margin-remove-top">
-                {{ "Events from" | _ }}  {{ startDate |translateDate(true) }} {{ "to" | _ }} {{ endDate.format('d.m.y') |_ }}
+                {{ "Events from" | _ }}  {{ startDate.format('d.m.Y') }} {{ "to" | _ }} {{ endDate.format('d.m.Y') |_ }}
                 {% if displayLimit > 0 %}
                     ( {{ "only the first"  |_ }} {{ displayLimit }} {{ "will be shown" |_}})
                 {% endif %}
