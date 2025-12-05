@@ -4,7 +4,7 @@
         'description' => 'A plugin to manage calendars and events.',
     ],
     'navigation' => [
-        'main' => 'Calendar',
+        'main' => 'Calendars',
         'calendars' => 'Calendars',
         'entries' => 'Entries',
     ],

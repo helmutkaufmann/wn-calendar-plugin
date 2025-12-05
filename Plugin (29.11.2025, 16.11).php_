@@ -2,21 +2,21 @@
 
 use System\Classes\PluginBase;
 use Backend;
-use BackendAuth;
 use Event;
 use Carbon\Carbon;
 use Session;
 use Log;
+
 
 class Plugin extends PluginBase
 {
     public function pluginDetails()
     {
         return [
-            "name"        => "mercator.calendar::lang.plugin.name",
+            "name" => "mercator.calendar::lang.plugin.name",
             "description" => "mercator.calendar::lang.plugin.description",
-            "author"      => "Helmut Kaufmann",
-            "icon"        => "icon-calendar-o",
+            "author" => "Helmut Kaufmann",
+            "icon" => "icon-calendar-o",
         ];
     }
 
@@ -24,29 +24,23 @@ class Plugin extends PluginBase
     {
         return [
             "calendar" => [
-                "label"       => "mercator.calendar::lang.navigation.main",
-                "url"         => Backend::url("mercator/calendar/calendars"),
-                "icon"        => "icon-calendar-o",
+                "label" => "mercator.calendar::lang.navigation.main",
+                "url" => Backend::url("mercator/calendar/calendars"),
+                "icon" => "icon-calendar-o",
+                "permissions" => ["mercator.calendar.access_calendars"],
+                "order" => 500,
 
-                // Show this main menu if the user has ANY calendar-related permission.
-                // This does NOT grant those permissions, it only controls visibility.
-                "permissions" => [
-                    "mercator.calendar.*",
-                ],
-
-                "order"       => 500,
-
-                "sideMenu"    => [
+                "sideMenu" => [
                     "calendars" => [
-                        "label"       => "mercator.calendar::lang.navigation.calendars",
-                        "icon"        => "icon-calendar",
-                        "url"         => Backend::url("mercator/calendar/calendars"),
+                        "label" => "mercator.calendar::lang.navigation.calendars",
+                        "icon" => "icon-calendar",
+                        "url" => Backend::url("mercator/calendar/calendars"),
                         "permissions" => ["mercator.calendar.access_calendars"],
                     ],
                     "entries" => [
-                        "label"       => "mercator.calendar::lang.navigation.entries",
-                        "icon"        => "icon-calendar-check-o",
-                        "url"         => Backend::url("mercator/calendar/calendarentries"),
+                        "label" => "mercator.calendar::lang.navigation.entries",
+                        "icon" => "icon-calendar-check-o",
+                        "url" => Backend::url("mercator/calendar/calendarentries"),
                         "permissions" => ["mercator.calendar.access_entries"],
                     ],
                 ],
@@ -58,11 +52,11 @@ class Plugin extends PluginBase
     {
         return [
             "mercator.calendar.access_calendars" => [
-                "tab"   => "mercator.calendar::lang.permissions.tab",
+                "tab" => "mercator.calendar::lang.permissions.tab",
                 "label" => "mercator.calendar::lang.permissions.access_calendars",
             ],
             "mercator.calendar.access_entries" => [
-                "tab"   => "mercator.calendar::lang.permissions.tab",
+                "tab" => "mercator.calendar::lang.permissions.tab",
                 "label" => "mercator.calendar::lang.permissions.access_entries",
             ],
         ];
@@ -79,26 +73,14 @@ class Plugin extends PluginBase
                 return;
             }
 
-            $user = BackendAuth::getUser();
-            if (!$user) {
-                return;
-            }
-
-            // Only add "entries" related items if the user can actually access entries
-            if (!$user->hasAccess("mercator.calendar.access_entries")) {
-                return;
-            }
-
             // 1. Prepare the dynamic items from the database
             $calendars = Calendar::orderBy("name")->get();
             $dynamicItems = [];
             foreach ($calendars as $calendar) {
                 $dynamicItems["calendar-" . $calendar->slug] = [
-                    "label"       => $calendar->name,
-                    "icon"        => "icon-calendar-check-o",
-                    "url"         => Backend::url(
-                        "mercator/calendar/calendarentries?Filter[calendar]=" . $calendar->id
-                    ),
+                    "label" => $calendar->name,
+                    "icon" => "icon-calendar-check-o",
+                    "url" => Backend::url("mercator/calendar/calendarentries?Filter[calendar]=" . $calendar->id),
                     "permissions" => ["mercator.calendar.access_entries"],
                 ];
             }
@@ -106,9 +88,9 @@ class Plugin extends PluginBase
             // 2. Define the static item that will be modified
             $staticItems = [
                 "entries" => [
-                    "label"       => "All Entries",
-                    "icon"        => "icon-list",
-                    "url"         => Backend::url("mercator/calendar/calendarentries"),
+                    "label" => "All Entries",
+                    "icon" => "icon-list",
+                    "url" => Backend::url("mercator/calendar/calendarentries"),
                     "permissions" => ["mercator.calendar.access_entries"],
                 ],
             ];
@@ -132,19 +114,16 @@ class Plugin extends PluginBase
 
     public function translateDate($date, $withYear = false)
     {
+        
         if (!$date) {
             return;
         }
-
         if (gettype($date) === "string") {
             $date = new Carbon($date);
         }
-
-        $locale = "en";
-        $format = $withYear
-            ? "LL"
-            : (starts_with($locale, "en") ? "MMMM D" : "D MMMM");
-
+        
+        $locale="en";
+        $format = $withYear ? "LL" : (starts_with($locale, "en") ? "MMMM D" : "D MMMM");
         return $date->locale($locale)->isoFormat($format);
     }
 
