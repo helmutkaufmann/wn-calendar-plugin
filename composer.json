@@ -1,7 +1,24 @@
 {
-    "name": "mercator/calendar",
+    "name": "mercator/wn-calendar-plugin",
     "type": "winter-plugin",
+    "description": "Calendar Plugin for Winter CMS Block.",
+    "keywords": ["winter", "wintercms", "laravel", "calendar", "blocks", "extension", "plugin", "php"],
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Helmut Kaufmann",
+            "role": "Author"
+        }
+    ],
+    "minimum-stability": "dev",
     "require": {
+        "php": ">=7.0",
+        "composer/installers": "~1.0",
         "spatie/icalendar-generator": "^2.0"
+    },
+    "config": {
+        "allow-plugins": {
+            "composer/installers": false
+        }
     }
 }
