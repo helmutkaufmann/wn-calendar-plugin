@@ -71,3 +71,5 @@ secondaryTabs:
             type: fileupload
             mode: image
             tab: Media
+            imageWidth: 150
+            imageHeight: 100
