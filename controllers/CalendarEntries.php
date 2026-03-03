@@ -12,6 +12,8 @@ class CalendarEntries extends Controller
         \Backend\Behaviors\ListController::class,
         \Backend\Behaviors\FormController::class
     ];
+ 
+   protected $orderBy = ['start_datetime' => 'asc'];
     
     /**
      * @var string Configuration file for the `ListController` behavior.
