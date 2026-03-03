@@ -54,6 +54,12 @@ class Plugin extends PluginBase
         ];
     }
 
+    public function registerComponents(): array {
+        return [
+            \Mercator\Calendar\Components\Calendars::class => 'calendar',
+        ];
+    }
+
     public function registerPermissions()
     {
         return [

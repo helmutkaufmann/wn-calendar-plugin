@@ -1,115 +1,3 @@
-name: Calendar
-description: Displays events from a selected calendar.
-icon: icon-calendar-o
-tags: ["pages"]
-
-fields:
-  calendar_id:
-    label: Calendar
-    comment: Select the calendar to display events from.
-    type: recordfinder
-    list: $/mercator/calendar/models/calendar/columns.yaml
-    title: Find Calendar
-    prompt: Click the %s button to find a calendar
-    keyFrom: id
-    nameFrom: name
-    useRelation: false
-    modelClass: Mercator\Calendar\Models\Calendar
-    required: true
-    span: left
-
-  view:
-    label: Display View
-    comment: Show events as a list or in a calendar.
-    type: dropdown
-    default: list
-    options:
-      list: List View
-      grid: Grid View
-    span: right
-
-  showEventIcsButton:
-    label: Show 'Add to Calendar' icon for each event
-    comment: If checked each event will have its own download icon.
-    type: switch
-    default: true
-    span: left
-
-  listAccordionsOpen:
-    label: Show all event details
-    comment: If checked, detail for all events will be shown.
-    type: switch
-    default: false
-    span: right # Adjusted span to pair with showEventIcsButton
-    trigger:
-      action: show
-      field: view
-      condition: value[list]
-
-  buttonAlignment:
-    label: Feed Button Alignment
-    comment: Choose the alignment for the 'Subscribe' button, or hide it.
-    type: dropdown
-    default: 'right'
-    options:
-      'none': Not Shown
-      'left': Left
-      'center': Center
-      'right': Right
-    span: left
-
-  displayLimit:
-    label: Limit displayed events
-    comment: If specified, only this many events will be shown from the date range.
-    type: number
-    span: right # Adjusted span to pair with buttonAlignment
-    trigger:
-      action: show
-      field: view
-      condition: value[list]
-
-  startDate:
-    label: Start Date
-    comment: The date to start displaying events from. Leave blank for the current day/month.
-    type: datepicker
-    mode: date
-    span: left
-    ignoreTimezone: true
-
-  monthsToShow:
-    label: Months to Show
-    comment: The number of months of events to display from the start date.
-    type: number
-    default: 3
-    span: right
-==
-<?php
-use Mercator\Calendar\Classes\CalendarService;
-function onStart()
-{
-    $properties = [
-        'calendarId' => $this['calendar_id'],
-        'view' => $this['view'],
-        'listAccordionsOpen' => $this['listAccordionsOpen'],
-        'displayLimit' => $this['displayLimit'],
-        'showEventIcsButton' => $this['showEventIcsButton'],
-        'buttonAlignment' => $this['buttonAlignment'],
-        'startDate' => $this['startDate'],
-        'monthsToShow' => $this['monthsToShow'],
-    ];
-
-    $config = CalendarService::getCalendarConfig($properties['calendarId']);
-    if (!$config) return;
-
-    $displayProps = CalendarService::getDisplayProperties($properties);
-    $data = CalendarService::getCalendarData($config['calendar'], array_merge($properties, $displayProps));
-
-    foreach (array_merge($config, $displayProps, $data) as $key => $value) {
-        $this[$key] = $value;
-    }
-}
-?>
-==
 <style>
     /* Hides the event summary when the accordion is open */
     .uk-open .uk-accordion-title .event-summary {
@@ -119,6 +7,9 @@ function onStart()
 
 {% set feedButtons %}
     {% if buttonAlignment and buttonAlignment != 'none' %}
+    <a href="{{ icsUrl }}" class="uk-button uk-button-default uk-button-small" title="Download Calendar">
+        <span uk-icon="download"></span> {{ "Download" |_ }}
+    </a>
     <a href="{{ webcalUrl }}" class="uk-button uk-button-default uk-button-small" title="Subscribe in Calendar App">
         <span uk-icon="calendar"></span> {{ "Subscribe" |_ }}
     </a>
