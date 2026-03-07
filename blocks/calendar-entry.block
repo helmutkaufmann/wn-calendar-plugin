@@ -1,0 +1,92 @@
+name: Calendar Entry
+description: Displays a single calendar event.
+icon: icon-calendar-o
+tags: ["pages"]
+
+fields:
+  entry_id:
+    label: Entry
+    comment: Select the calendar entry to display.
+    type: recordfinder
+    list: $/mercator/calendar/models/calendarentry/columns.yaml
+    title: Find Entry
+    prompt: Click the %s button to find an entry
+    keyFrom: id
+    nameFrom: title
+    useRelation: false
+    modelClass: Mercator\Calendar\Models\CalendarEntry
+    required: true
+    span: full
+
+  showEventIcsButton:
+    label: Show 'Add to Calendar' icon
+    comment: If checked an iCal download link will be rendered for the event.
+    type: switch
+    default: true
+    span: left
+
+==
+<?php
+use Mercator\Calendar\Models\CalendarEntry;
+use Url;
+
+function onStart()
+{
+    $entryId = $this['entry_id'];
+    if (!$entryId) {
+        return;
+    }
+
+    // respect published scope
+    $entry = CalendarEntry::isPublished()->find($entryId);
+    if (!$entry) {
+        return;
+    }
+
+    $this['entry'] = $entry;
+    $this['showEventIcsButton'] = (bool) ($this['showEventIcsButton'] ?? true);
+    $this['icsUrl'] = Url::to('/mercator/calendar/ical/event/' . $entry->id . '.ics');
+}
+?>
+==
+<div class="meter-entry">
+    {% if entry %}
+        <article class="uk-card uk-card-default uk-card-body">
+            <h1 class="uk-card-title">{{ entry.title }}</h1>
+
+            <p class="uk-margin-remove uk-text-small">
+                <span class="uk-margin-small-right" uk-icon="icon: clock; ratio: 0.8"></span>
+                {% if entry.end_datetime and entry.start_datetime|date('Y-m-d') != entry.end_datetime|date('Y-m-d') %}
+                    {{ entry.start_datetime|date("g:i A (M j)") }} - {{ entry.end_datetime|date("g:i A (M j)") }}
+                {% else %}
+                    {{ entry.start_datetime|date("l, F jS, Y") }}
+                    {% if entry.end_datetime %}
+                        – {{ entry.end_datetime|date("g:i A") }}
+                    {% endif %}
+                {% endif %}
+            </p>
+
+            {% if entry.location %}
+                <p class="uk-margin-small uk-text-small">
+                    <span class="uk-margin-small-right" uk-icon="icon: location; ratio: 0.8"></span>
+                    {{ entry.location }}
+                </p>
+            {% endif %}
+
+            {% if entry.description %}
+                <div class="uk-margin-top editor-content">{{ entry.description|raw }}</div>
+            {% endif %}
+
+            {% if showEventIcsButton %}
+                <p class="uk-text-small uk-margin-small-top">
+                    <a href="{{ icsUrl }}" class="uk-icon-button" uk-icon="calendar" uk-tooltip="Add to Calendar"></a>
+                </p>
+            {% endif %}
+
+        </article>
+    {% else %}
+        <div class="uk-alert-warning" uk-alert>
+            <p>Event not found.</p>
+        </div>
+    {% endif %}
+</div>

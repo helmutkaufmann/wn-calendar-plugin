@@ -34,4 +34,23 @@
         'return_to_list' => 'Return to entries list',
         'tab_publish' => 'Publishing',
     ],
+    'component' => [
+        'entry' => [
+            'name'        => 'Calendar Entry',
+            'description' => 'Displays a single calendar event.',
+            'entry'       => 'Entry',
+            'entry_description' => 'Select the calendar entry to display (or use a URL parameter).',
+            'show_ics'    => "Show 'Add to Calendar' icon"
+        ],
+    ],
+    'block' => [
+        'entry' => [
+            'name'        => 'Calendar Entry',
+            'description' => 'Displays a single calendar event as a reusable block.',
+            'fields' => [
+                'entry_id' => 'Entry',
+                'show_ics' => "Show 'Add to Calendar' icon"
+            ],
+        ],
+    ],
 ];

@@ -151,7 +151,16 @@ class Plugin extends PluginBase
     public function registerBlocks(): array
     {
         return [
-            "mercator_calendar_calendar" => '$/mercator/calendar/blocks/calendar.block',
+            "mercator_calendar_calendar"       => '$/mercator/calendar/blocks/calendar.block',
+            "mercator_calendar_entry"          => '$/mercator/calendar/blocks/calendar-entry.block',
+        ];
+    }
+
+    public function registerComponents(): array
+    {
+        return [
+            'Mercator\Calendar\Components\Calendar' => 'calendarComponent',
+            'Mercator\Calendar\Components\Entry'    => 'calendarEntry',
         ];
     }
 }

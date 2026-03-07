@@ -102,3 +102,49 @@ The plugin generates feed URLs based on the slug of the calendar you create in t
 
   * **iCal Subscription**: `https://your-domain.com/mercator/calendar/ical/{slug}.ics`
   * **RSS Feed**: `https://your-domain.com/mercator/calendar/rss/{slug}`
+
+
+## Individual Event Pages
+
+A new `Calendar Entry` component is available to render the details of a single event. It expects an
+`entryId` property (usually supplied via a URL parameter) and exposes an `entry` page variable containing
+the model instance.
+
+Example CMS page setup:
+
+```twig
+url = "/event/:entry_id"
+==
+title = "Event details"
+layout = "default"
+
+[calendarEntryComponent]
+entryId = "{{ :entry_id }}"   <!-- this property is now a dropdown when editing the page, showing all published entries -->
+showEventIcsButton = 1
+```
+
+### Block for Static Pages
+
+If you prefer to use the feature as a reusable **block** instead of a component, a
+`Calendar Entry` block is also provided. It has the same options but renders via the
+page designer's block picker and can be placed on any static page or layout.
+
+Fields available:
+
+* **Entry** – recordfinder dropdown listing published entries by title.
+* **Show 'Add to Calendar' icon** – toggle the ICS download link.
+
+The block will expose the same `entry` and `icsUrl` variables in the page context. Example
+usage in a layout's markup is identical to the component above.
+
+And in the page markup you can reference the entry:
+
+```twig
+<h1>{{ entry.title }}</h1>
+<p>{{ entry.start_datetime|date("l, F jS, Y g:i A") }}</p>
+<!-- etc -->
+```
+
+The component will also include an `icsUrl` variable when the `showEventIcsButton` option is enabled,
+linking to the existing `/mercator/calendar/ical/event/{id}.ics` route.
+

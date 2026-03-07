@@ -1,0 +1,41 @@
+<div class="meter-entry">
+    {% if entry %}
+        <article class="uk-card uk-card-default uk-card-body">
+            <h1 class="uk-card-title">{{ entry.title }}</h1>
+
+            <p class="uk-margin-remove uk-text-small uk-text-muted">
+                <span class="uk-margin-small-right" uk-icon="icon: clock; ratio: 0.8"></span>
+                {% if entry.end_datetime and entry.start_datetime|date('Y-m-d') != entry.end_datetime|date('Y-m-d') %}
+                    {{ entry.start_datetime|date("g:i A (M j)") }} - {{ entry.end_datetime|date("g:i A (M j)") }}
+                {% else %}
+                    {{ entry.start_datetime|date("l, F jS, Y") }}
+                    {% if entry.end_datetime %}
+                        – {{ entry.end_datetime|date("g:i A") }}
+                    {% endif %}
+                {% endif %}
+            </p>
+
+            {% if entry.location %}
+                <p class="uk-margin-small uk-text-small">
+                    <span class="uk-margin-small-right" uk-icon="icon: location; ratio: 0.8"></span>
+                    {{ entry.location }}
+                </p>
+            {% endif %}
+
+            {% if entry.description %}
+                <div class="uk-margin-top editor-content">{{ entry.description|raw }}</div>
+            {% endif %}
+
+            {% if showEventIcsButton %}
+                <p class="uk-text-small uk-margin-small-top">
+                    <a href="{{ icsUrl }}" class="uk-icon-button" uk-icon="calendar" uk-tooltip="Add to Calendar"></a>
+                </p>
+            {% endif %}
+
+        </article>
+    {% else %}
+        <div class="uk-alert-warning" uk-alert>
+            <p>Event not found.</p>
+        </div>
+    {% endif %}
+</div>
