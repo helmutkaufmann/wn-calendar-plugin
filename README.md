@@ -38,40 +38,9 @@ A flexible and robust plugin for managing and displaying calendars and events on
 
 -----
 
-## Dependencies
-
-  * **`spatie/icalendar-generator`**: Required for generating iCal feeds. This is installed via Composer.
-  * **`Winter.Translate`** (Optional): Required for the automatic translation of dates and weekday names.
-
------
-
 ## Installation
 
-1.  Place the plugin's files in the `plugins/mercator/calendar` directory.
-2.  Create a `composer.json` file inside `plugins/mercator/calendar/` with the following content:
-    ```json
-    {
-        "name": "mercator/calendar",
-        "type": "winter-plugin",
-        "require": {
-            "spatie/icalendar-generator": "^2.0"
-        }
-    }
-    ```
-3.  Open the main `composer.json` file in your Winter CMS project root and add the plugin's `composer.json` path to the `extra.merge-plugin.include` section:
-    ```json
-    "extra": {
-        "merge-plugin": {
-            "include": [
-                "plugins/mercator/calendar/composer.json"
-            ],
-            "recurse": true,
-            "replace": false,
-            "merge-dev": false
-        }
-    },
-    ```
-4.  Run `composer update` from your project's root directory to install the required libraries.
+1.  Run `composer require mercator/wn-calendar-plugin` 
 5.  Run the database migrations:
     ```bash
     php artisan winter:up
