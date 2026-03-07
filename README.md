@@ -73,6 +73,61 @@ The plugin generates feed URLs based on the slug of the calendar you create in t
   * **RSS Feed**: `https://your-domain.com/mercator/calendar/rss/{slug}`
 
 
+## Components vs Blocks
+
+The plugin exposes both **components** and **blocks** so you can choose the pattern that
+fits your site structure.
+
+* **Components** are added directly to CMS pages or layouts with the `{% component %}`
+tag. They are the right choice when your URL structure is dynamic (e.g. `/event/:id`) or
+you need to access the component from within page logic. Components are configured on
+the page marked-up file and accept URL parameters as defaults.
+
+* **Blocks** appear in the Winter CMS block picker and behave like reusable snippets that
+can be dragged onto any static page or layout. Use blocks when you want editors to place
+prebuilt calendar pieces without editing the page markup itself. Blocks still expose the
+same variables in the rendered page, so the Twig you write to display them is identical to
+what you'd use inside a component.
+
+Both the full calendar view and the single-entry view are available as either a component
+or a block:
+
+* `Calendar` component / block — shows a list or grid of events from one calendar. When
+  added to a page as a component you configure the calendar ID and display options in the
+  page file; as a block you use the designer's block picker and set the same options via the
+  block properties panel.
+* `Calendar Entry` component / block — renders details for one specific event (see below).
+
+### Example: full calendar component usage
+
+```twig
+url = "/calendar"
+==
+title = "Upcoming events"
+layout = "default"
+
+[calendarComponent]
+calendar_id = 3
+view = "list"
+showEventIcsButton = 1
+buttonAlignment = "left"
+startDate = "2026-03-01"
+monthsToShow = 2
+```
+
+### Example: full calendar block
+
+Simply drop the **Calendar** block in the CMS designer on any static page or layout. The
+property names are identical, so the settings shown in the editor mirror those available
+for the component (calendar selection, view type, feed button alignment, etc.).
+
+The underlying HTML/Twig that renders the calendar is shared between the two; using a
+block just gives you a visual placeholder in the layout editor and avoids manual Twig
+markup.
+
+You can mix and match: for example, the calendar block on your homepage and an entry
+component on an `event` detail page.
+
 ## Individual Event Pages
 
 A new `Calendar Entry` component is available to render the details of a single event. It expects an
@@ -116,4 +171,3 @@ And in the page markup you can reference the entry:
 
 The component will also include an `icsUrl` variable when the `showEventIcsButton` option is enabled,
 linking to the existing `/mercator/calendar/ical/event/{id}.ics` route.
-
