@@ -1,9 +1,9 @@
 <div class="meter-entry">
     {% if entry %}
-        <article class="uk-card uk-card-default uk-card-body">
-            <h1 class="uk-card-title">{{ entry.title }}</h1>
+        <div class="entry-details">
+            <h3>{{ entry.title }}</h3>
 
-            <p class="uk-margin-remove uk-text-small">
+            <p class="uk-margin-remove">
                 <span class="uk-margin-small-right" uk-icon="icon: clock; ratio: 0.8"></span>
                 {% if entry.end_datetime and entry.start_datetime|date('Y-m-d') != entry.end_datetime|date('Y-m-d') %}
                     {{ entry.start_datetime|date("g:i A (M j)") }} - {{ entry.end_datetime|date("g:i A (M j)") }}
@@ -16,7 +16,7 @@
             </p>
 
             {% if entry.location %}
-                <p class="uk-margin-small uk-text-small">
+                <p class="uk-margin-small">
                     <span class="uk-margin-small-right" uk-icon="icon: location; ratio: 0.8"></span>
                     {{ entry.location }}
                 </p>
@@ -27,13 +27,13 @@
             {% endif %}
 
             {% if showEventIcsButton %}
-                <p class="uk-margin-small uk-text-small">
+                <p class="uk-margin-small">
                     <span class="uk-margin-small-right" uk-icon="icon: calendar; ratio: 0.8"></span>
                     <a href="{{ icsUrl }}">{{ 'Add to calendar' | _ }}</a>
                 </p>
             {% endif %}
 
-        </article>
+        </div>
     {% else %}
         <div class="uk-alert-warning" uk-alert>
             <p>Event not found.</p>

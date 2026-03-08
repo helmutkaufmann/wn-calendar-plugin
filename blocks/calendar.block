@@ -257,7 +257,7 @@ function onStart()
                                             {% for entry in day.entries %}
                                                 <li>
                                                     <div class="uk-inline">
-                                                        <a href="#" class="uk-text-small uk-link-reset uk-display-block uk-text-truncate" uk-toggle="target: #event-dropdown-{{ entry.id }}-{{ loop.parent.loop.index }}">{{ entry.title }}</a>
+                                                        <a href="#" class="uk-link-reset uk-display-block uk-text-truncate" uk-toggle="target: #event-dropdown-{{ entry.id }}-{{ loop.parent.loop.index }}">{{ entry.title }}</a>
                                                         <div id="event-dropdown-{{ entry.id }}-{{ loop.parent.loop.index }}" uk-dropdown="mode: click; pos: bottom-center; boundary: !.uk-table; animation: uk-animation-fade; duration: 100">
                                                             <div class="uk-card uk-card-body uk-card-default uk-padding-small uk-width-medium">
                                                                 <h5 class="uk-card-title uk-margin-small-bottom">{{ entry.title }}</h5>
@@ -269,7 +269,7 @@ function onStart()
                                                                         </div>
                                                                     {% endif %}
                                                                     <div class="uk-width-expand">
-                                                                        <p class="uk-margin-remove uk-text-small">
+                                                                        <p class="uk-margin-remove">
                                                                             <span class="uk-margin-small-right" uk-icon="icon: clock; ratio: 0.8"></span>
                                                                             {% if entry.end_datetime and entry.start_datetime|date('Y-m-d') != entry.end_datetime|date('Y-m-d') %}
                                                                                 {{ entry.start_datetime|date("g:i A (M j)") }} - {{ entry.end_datetime|date("g:i A (M j)") }}
@@ -279,9 +279,9 @@ function onStart()
                                                                         </p>
                                                                     </div>
                                                                 </div>
-                                                                {% if entry.location %}<p class="uk-margin-small uk-text-small"><span class="uk-margin-small-right" uk-icon="icon: location; ratio: 0.8"></span>{{ entry.location }}</p>{% endif %}
-                                                                {% if entry.summary %}<p class="uk-margin-small uk-text-small uk-text-italic">{{ entry.summary }}</p>{% endif %}
-                                                                {% if entry.description %}<div class="uk-margin-small-top editor-content uk-text-small">{{ entry.description|raw }}</div>{% endif %}
+                                                                {% if entry.location %}<p class="uk-margin-small"><span class="uk-margin-small-right" uk-icon="icon: location; ratio: 0.8"></span>{{ entry.location }}</p>{% endif %}
+                                                                {% if entry.summary %}<p class="uk-margin-small uk-text-italic">{{ entry.summary }}</p>{% endif %}
+                                                                {% if entry.description %}<div class="uk-margin-small-top editor-content">{{ entry.description|raw }}</div>{% endif %}
                                                             </div>
                                                         </div>
                                                     </div>
@@ -335,7 +335,7 @@ function onStart()
                                         - {{ entry.title }}
                                     </h5>
                                     {% if entry.summary %}
-                                        <p class="uk-text-small uk-margin-remove-top uk-text-truncate event-summary">
+                                        <p class="uk-margin-remove-top uk-text-truncate event-summary">
                                             {{ entry.summary }}
                                         </p>
                                     {% endif %}
@@ -343,7 +343,7 @@ function onStart()
                                 <div class="uk-accordion-content">
                                     <div class="uk-grid-small uk-flex-middle" uk-grid>
                                         <div class="uk-width-expand">
-                                            <p class="uk-margin-remove uk-text-small">
+                                            <p class="uk-margin-remove">
                                                 <span class="uk-margin-small-right" uk-icon="icon: clock; ratio: 0.8"></span>
                                                 {% if entry.end_datetime and entry.start_datetime|date('Y-m-d') != entry.end_datetime|date('Y-m-d') %}
                                                     {{ entry.start_datetime|date("g:i A (M j)") }} - {{ entry.end_datetime|date("g:i A (M j)") }}
@@ -359,8 +359,8 @@ function onStart()
                                         </div>
                                         {% endif %}
                                     </div>
-                                    {% if entry.location %}<p class="uk-margin-small uk-text-small"><span class="uk-margin-small-right" uk-icon="icon: location; ratio: 0.8"></span>{{ entry.location }}</p>{% endif %}
-                                    {% if entry.description %}<div class="uk-margin-small-top editor-content uk-text-small">{{ entry.description|raw }}</div>{% endif %}
+                                    {% if entry.location %}<p class="uk-margin-small"><span class="uk-margin-small-right" uk-icon="icon: location; ratio: 0.8"></span>{{ entry.location }}</p>{% endif %}
+                                    {% if entry.description %}<div class="uk-margin-small-top editor-content">{{ entry.description|raw }}</div>{% endif %}
                                 </div>
                             </div>
                         {% endfor %}
