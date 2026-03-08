@@ -40,7 +40,7 @@ class Calendar extends ComponentBase
                 ]
             ],
             'showEventIcsButton' => [
-                'title' => "Show 'Add to Calendar' icon for each event",
+                'title' => "Show 'Add to Calendar' button for each event",
                 'description' => 'If checked each event will have its own download icon.',
                 'type' => 'checkbox',
                 'default' => 1,

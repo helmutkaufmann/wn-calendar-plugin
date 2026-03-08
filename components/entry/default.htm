@@ -3,7 +3,7 @@
         <article class="uk-card uk-card-default uk-card-body">
             <h1 class="uk-card-title">{{ entry.title }}</h1>
 
-            <p class="uk-margin-remove uk-text-small uk-text-muted">
+            <p class="uk-margin-remove uk-text-small">
                 <span class="uk-margin-small-right" uk-icon="icon: clock; ratio: 0.8"></span>
                 {% if entry.end_datetime and entry.start_datetime|date('Y-m-d') != entry.end_datetime|date('Y-m-d') %}
                     {{ entry.start_datetime|date("g:i A (M j)") }} - {{ entry.end_datetime|date("g:i A (M j)") }}
@@ -27,8 +27,9 @@
             {% endif %}
 
             {% if showEventIcsButton %}
-                <p class="uk-text-small uk-margin-small-top">
-                    <a href="{{ icsUrl }}" class="uk-icon-button" uk-icon="calendar" uk-tooltip="Add to Calendar"></a>
+                <p class="uk-margin-small uk-text-small">
+                    <span class="uk-margin-small-right" uk-icon="icon: calendar; ratio: 0.8"></span>
+                    <a href="{{ icsUrl }}">{{ 'Add to calendar' | _ }}</a>
                 </p>
             {% endif %}
 

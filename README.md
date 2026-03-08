@@ -57,7 +57,7 @@ When you add the "Calendar" block to a page, you have the following settings ava
 | **Calendar** | Selects which calendar's events to display. This is required.                                            |
 | **Display View** | Choose between the `List View` (accordion) and `Grid View` (monthly calendar).                           |
 | **Feed Button Alignment** | Choose the alignment (`left`, `center`, `right`) for the 'Subscribe' button, or hide it (`Not Shown`). |
-| **Show 'Add to Calendar' icon** | If checked, each event will have its own download icon in the detailed view.                               |
+| **Show 'Add to Calendar' button** | If checked, each event will have its own download button in the detailed view.                               |
 | **Start with all days expanded** | (List View only) If checked, all accordion items will be open by default.                                |
 | **Limit displayed events** | (List View only) If specified, only this many events will be shown from within the calculated date range. |
 | **Start Date** | The date to start displaying events from. If left blank, it defaults to the current day or month.        |
@@ -156,7 +156,7 @@ page designer's block picker and can be placed on any static page or layout.
 Fields available:
 
 * **Entry** – recordfinder dropdown listing published entries by title.
-* **Show 'Add to Calendar' icon** – toggle the ICS download link.
+* **Show 'Add to Calendar' button** – toggle the ICS download link.
 
 The block will expose the same `entry` and `icsUrl` variables in the page context. Example
 usage in a layout's markup is identical to the component above.

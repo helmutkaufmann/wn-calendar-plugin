@@ -19,7 +19,7 @@ fields:
     span: full
 
   showEventIcsButton:
-    label: Show 'Add to Calendar' icon
+    label: Show 'Add to Calendar' button
     comment: If checked an iCal download link will be rendered for the event.
     type: switch
     default: true
@@ -54,7 +54,7 @@ function onStart()
         <article class="uk-card uk-card-default uk-card-body">
             <h1 class="uk-card-title">{{ entry.title }}</h1>
 
-            <p class="uk-margin-remove uk-text-small">
+            <p class="uk-margin-remove">
                 <span class="uk-margin-small-right" uk-icon="icon: clock; ratio: 0.8"></span>
                 {% if entry.end_datetime and entry.start_datetime|date('Y-m-d') != entry.end_datetime|date('Y-m-d') %}
                     {{ entry.start_datetime|date("g:i A (M j)") }} - {{ entry.end_datetime|date("g:i A (M j)") }}
@@ -78,15 +78,16 @@ function onStart()
             {% endif %}
 
             {% if showEventIcsButton %}
-                <p class="uk-text-small uk-margin-small-top">
-                    <a href="{{ icsUrl }}" class="uk-icon-button" uk-icon="calendar" uk-tooltip="Add to Calendar"></a>
+                <p class="uk-margin-small uk-text-small">
+                    <span class="uk-margin-small-right" uk-icon="icon: calendar; ratio: 0.8"></span>
+                    <a href="{{ icsUrl }}">{{ 'Add to calendar' | _ }}</a>
                 </p>
             {% endif %}
 
         </article>
     {% else %}
         <div class="uk-alert-warning" uk-alert>
-            <p>Event not found.</p>
+            <p>{{ 'Event not found.' | _ }}</p>
         </div>
     {% endif %}
 </div>

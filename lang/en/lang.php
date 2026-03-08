@@ -40,7 +40,7 @@
             'description' => 'Displays a single calendar event.',
             'entry'       => 'Entry',
             'entry_description' => 'Select the calendar entry to display (or use a URL parameter).',
-            'show_ics'    => "Show 'Add to Calendar' icon"
+            'show_ics'    => "Show 'Add to Calendar' button"
         ],
     ],
     'block' => [
@@ -49,7 +49,7 @@
             'description' => 'Displays a single calendar event as a reusable block.',
             'fields' => [
                 'entry_id' => 'Entry',
-                'show_ics' => "Show 'Add to Calendar' icon"
+                'show_ics' => "Show 'Add to Calendar' button"
             ],
         ],
     ],
